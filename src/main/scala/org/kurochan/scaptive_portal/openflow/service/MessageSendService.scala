@@ -5,6 +5,7 @@ import org.kurochan.scaptive_portal.controller.model.ServerMessage
 import org.kurochan.scaptive_portal.openflow.util.NettyConverters._
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success, Try}
 
 trait MessageSendService {
 
@@ -21,10 +22,23 @@ class MessageSendServiceImpl(dataPathManageService: DataPathManageService)(impli
 
     val future = maybeChannel match {
 
-      case Some(channel) => {
-        val buf = channel.alloc().buffer()
-        message.ofMessage.writeTo(buf)
-        channel.writeAndFlush(buf).asScala
+      case Some(channel) if channel.isActive => {
+        val result = Try {
+          val buf = channel.alloc().buffer()
+          message.ofMessage.writeTo(buf)
+          channel.writeAndFlush(buf).asScala
+        }
+        result match {
+          case Success(r) => r
+          case Failure(e) =>
+            logger.error("MessageSendService: failed to send message.", e)
+            Future.successful(())
+        }
+      }
+
+      case Some(_) => {
+        logger.error("MessageSendService: channel is not active.")
+        Future.successful(())
       }
 
       case None => {
