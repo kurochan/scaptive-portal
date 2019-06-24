@@ -2,9 +2,9 @@ package org.kurochan.scaptive_portal.controller
 
 import akka.Done
 import akka.actor.ActorSystem
+import akka.stream._
 import akka.stream.scaladsl.GraphDSL.Implicits._
 import akka.stream.scaladsl.{GraphDSL, RunnableGraph, SourceQueue}
-import akka.stream.{ClosedShape, Materializer, SharedKillSwitch}
 import com.typesafe.scalalogging.StrictLogging
 import org.kurochan.scaptive_portal.controller.model.ControllerMessage
 
@@ -21,6 +21,13 @@ trait ControllerStream {
 }
 
 class ControllerStreamImpl(config: ControllerStreamConfig) extends ControllerStream with StrictLogging {
+
+  private val decider: Supervision.Decider = {
+    case e: Exception => {
+      logger.error(s"ControllerStream: caught exception!! resume.", e)
+      Supervision.Resume
+    }
+  }
 
   def stream()(
     implicit system: ActorSystem,
@@ -44,7 +51,7 @@ class ControllerStreamImpl(config: ControllerStreamConfig) extends ControllerStr
         ClosedShape
     })
 
-    val (sourceQueue, sinkFuture) = graph.run()
+    val (sourceQueue, sinkFuture) = graph.withAttributes(ActorAttributes.supervisionStrategy(decider)).run()
     val sourceFuture = sourceQueue.watchCompletion()
 
     val future = Future.sequence(Seq(sourceFuture, sinkFuture)).map(_.head)
