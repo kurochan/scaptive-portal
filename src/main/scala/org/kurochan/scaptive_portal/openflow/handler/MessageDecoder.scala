@@ -27,7 +27,7 @@ class MessageDecoder() extends ByteToMessageDecoder with StrictLogging {
           ofMessage
         }
         case Failure(e) => {
-          logger.error(s"MessageDecoder ERROR!", e)
+          logger.error(s"MessageDecoder ERROR!: ${e.getMessage}")
           in.readByte()
           None
         }
