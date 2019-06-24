@@ -136,7 +136,7 @@ class CaptivePortalServiceImpl(captivePortalServiceConfig: CaptivePortalServiceC
       .setPriority(FlowPriority.AUTHORIZED_USER_OUT)
       .setHardTimeout(FlowTTL.AUTHORIZED_OUT_HARD)
       .setIdleTimeout(FlowTTL.AUTHORIZED_OUT_IDLE)
-      .setFlags(Set(OFFlowModFlags.SEND_FLOW_REM).asJava)
+      // .setFlags(Set(OFFlowModFlags.SEND_FLOW_REM).asJava)
       .build()
     outMessages.append(ServerMessage(dataPathId, srcFlowAdd))
 
@@ -148,7 +148,7 @@ class CaptivePortalServiceImpl(captivePortalServiceConfig: CaptivePortalServiceC
       .setPriority(FlowPriority.AUTHORIZED_USER_IN)
       .setHardTimeout(FlowTTL.AUTHORIZED_OUT_HARD)
       .setIdleTimeout(FlowTTL.AUTHORIZED_OUT_IDLE)
-      .setFlags(Set(OFFlowModFlags.SEND_FLOW_REM).asJava)
+      // .setFlags(Set(OFFlowModFlags.SEND_FLOW_REM).asJava)
       .build()
     outMessages.append(ServerMessage(dataPathId, dstFlowAdd))
 
