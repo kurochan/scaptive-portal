@@ -52,10 +52,11 @@ class MessageReceiveServiceImpl(dataPathManageService: DataPathManageService, me
         val arpActions: List[OFAction] = List(arpAction)
         sendMessages += ofFactory.buildFlowAdd().setMatch(arpMatch).setActions(arpActions.asJava).setPriority(FlowPriority.DEFAULT_PACKET_ARP).build()
 
-        // Default Controller
+        // Default Controller (IPv4 Only)
+        val ipv4Match = ofFactory.buildMatch().setExact(MatchField.ETH_TYPE, EthType.IPv4).build()
         val defaultAction = ofFactory.actions().buildOutput().setPort(OFPort.CONTROLLER).setMaxLen(Integer.MAX_VALUE).build()
         val defaultActions: List[OFAction] = List(defaultAction)
-        sendMessages += ofFactory.buildFlowAdd().setActions(defaultActions.asJava).setPriority(FlowPriority.DEFAULT_PACKET_IN).build()
+        sendMessages += ofFactory.buildFlowAdd().setMatch(ipv4Match).setActions(defaultActions.asJava).setPriority(FlowPriority.DEFAULT_PACKET_IN).build()
       }
 
       case (msg: OFFeaturesReply, _) => {
