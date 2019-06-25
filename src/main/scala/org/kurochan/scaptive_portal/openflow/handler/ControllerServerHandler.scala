@@ -6,6 +6,8 @@ import io.netty.channel.{ChannelHandlerContext, ChannelInboundHandlerAdapter}
 import org.kurochan.scaptive_portal.openflow.service.{DataPathManageService, MessageReceiveService}
 import org.projectfloodlight.openflow.protocol.OFMessage
 
+import scala.util.{Failure, Success, Try}
+
 @Sharable
 class ControllerServerHandler(dataPathManageService: DataPathManageService, messageService: MessageReceiveService)
   extends ChannelInboundHandlerAdapter
@@ -18,12 +20,19 @@ class ControllerServerHandler(dataPathManageService: DataPathManageService, mess
     message match {
       case msg: OFMessage => {
         val sendMessages = messageService.handleMessage(ctx.channel.id.asShortText, msg)
-        val buf = ctx.channel.alloc().buffer()
-        sendMessages.foreach { sendMsg =>
-          logger.debug(s"send message: ChannelId: ${ctx.channel.id.asShortText}, Message: ${sendMsg}")
-          sendMsg.writeTo(buf)
+        val result = Try {
+          val buf = ctx.channel.alloc().buffer()
+          sendMessages.foreach { sendMsg =>
+            logger.debug(s"send message: ChannelId: ${ctx.channel.id.asShortText}, Message: ${sendMsg}")
+            sendMsg.writeTo(buf)
+          }
+          ctx.channel.writeAndFlush(buf)
         }
-        ctx.channel.writeAndFlush(buf)
+        result match {
+          case Success(r) => r
+          case Failure(e) =>
+            logger.error("ControllerServerHandler: failed to send message.", e)
+        }
       }
       case _ => throw new IllegalStateException(s"message is NOT OFMessage: ${message.getClass}")
     }

@@ -59,6 +59,12 @@ class MessageDecoder() extends ByteToMessageDecoder with StrictLogging {
         case Failure(_: IllegalArgumentException) => {
           in.readByte()
         }
+        case Failure(_: IllegalStateException) => {
+          in.readByte()
+        }
+        case Failure(_: NullPointerException) => {
+          in.readByte()
+        }
         case Failure(e) => {
           logger.error(s"unknown error", e)
           in.readByte()
