@@ -16,7 +16,7 @@ class MessageDecoder() extends ByteToMessageDecoder with StrictLogging {
   override def decode(ctx: ChannelHandlerContext, in: ByteBuf, out: java.util.List[Object]): Unit = {
 
     // see https://github.com/floodlight/floodlight/blob/163d6b157463d62639b999320ee28037f3fa61d8/src/main/java/net/floodlightcontroller/core/internal/OFMessageDecoder.java#L63
-    if(!ctx.channel().isActive) {
+    if (!ctx.channel().isActive) {
       return
     }
 
@@ -66,7 +66,9 @@ class MessageDecoder() extends ByteToMessageDecoder with StrictLogging {
       }
     }
 
-    logger.warn(s"MessageDecoder: ${in.readerIndex() - indexBeforeSkip} bytes discarded. isReadable: ${in.isReadable} (${in.readableBytes()} bytes), last message: ${lastMsg}")
+    logger.warn(
+      s"MessageDecoder: ${in.readerIndex() - indexBeforeSkip} bytes discarded. isReadable: ${in.isReadable} (${in.readableBytes()} bytes), last message: ${lastMsg}"
+    )
 
     lastMsg
   }

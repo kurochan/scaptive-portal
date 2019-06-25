@@ -14,6 +14,6 @@ trait CaptivePortalServiceConfig {
 class CaptivePortalServiceConfigImpl(
   val dataPathManageService: DataPathManageService,
   val messageQueue: SourceQueue[ControllerMessage]
-  ) extends CaptivePortalServiceConfig {
+) extends CaptivePortalServiceConfig {
   val redisRepository: RedisRepository = RedisRepositoryImpl.repository
 }

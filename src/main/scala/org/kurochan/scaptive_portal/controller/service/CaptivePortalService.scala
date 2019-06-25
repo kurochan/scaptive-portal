@@ -36,7 +36,7 @@ class CaptivePortalServiceImpl(captivePortalServiceConfig: CaptivePortalServiceC
   private val WHITELISTED_IP_ADDRS = globalConfig.getStringList("captive-portal.ip.whitelist").asScala.map(r => IPv4AddressWithMask.of(r)).toSet
   private val WHITELISTED_IPS = Set(
     WEB_IP_ADDR.withMaskOfLength(32),
-    FAKE_DNS_IP_ADDR.withMaskOfLength(32),
+    FAKE_DNS_IP_ADDR.withMaskOfLength(32)
   ) ++ WHITELISTED_IP_ADDRS
 
   private val ofFactory = OFFactories.getFactory(OFVersion.OF_13)
@@ -92,19 +92,11 @@ class CaptivePortalServiceImpl(captivePortalServiceConfig: CaptivePortalServiceC
 
     // cleanup unauthorized rules
     maybeIPv4.foreach { ipv4 =>
-      val srcMatch = ofFactory
-        .buildMatch()
-        .setExact(MatchField.ETH_TYPE, EthType.IPv4)
-        .setExact(MatchField.IPV4_SRC, ipv4)
-        .build()
+      val srcMatch = ofFactory.buildMatch().setExact(MatchField.ETH_TYPE, EthType.IPv4).setExact(MatchField.IPV4_SRC, ipv4).build()
       val cleanupSrcFlowRem = ofFactory.buildFlowDelete().setMatch(srcMatch).build()
       outMessages.append(ServerMessage(dataPathId, cleanupSrcFlowRem))
 
-      val dstMatch = ofFactory
-        .buildMatch()
-        .setExact(MatchField.ETH_TYPE, EthType.IPv4)
-        .setExact(MatchField.IPV4_DST, ipv4)
-        .build()
+      val dstMatch = ofFactory.buildMatch().setExact(MatchField.ETH_TYPE, EthType.IPv4).setExact(MatchField.IPV4_DST, ipv4).build()
       val cleanupDstFlowRem = ofFactory.buildFlowDelete().setMatch(dstMatch).build()
       outMessages.append(ServerMessage(dataPathId, cleanupDstFlowRem))
     }

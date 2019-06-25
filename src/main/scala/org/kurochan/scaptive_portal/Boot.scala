@@ -5,7 +5,12 @@ import com.typesafe.scalalogging.StrictLogging
 import org.kurochan.scaptive_portal.controller.{ControllerStreamConfigImpl, ControllerStreamImpl, OpenFlowControllerImpl}
 import org.kurochan.scaptive_portal.http.service.{CaptivePortalServiceConfigImpl, CaptivePortalServiceImpl}
 import org.kurochan.scaptive_portal.http.{CaptivePortalHttpServerImpl, CaptivePortalRouterImpl}
-import org.kurochan.scaptive_portal.openflow.service.{DataPathManageService, DataPathManageServiceConfigImpl, DataPathManageServiceImpl, MessageSendServiceImpl}
+import org.kurochan.scaptive_portal.openflow.service.{
+  DataPathManageService,
+  DataPathManageServiceConfigImpl,
+  DataPathManageServiceImpl,
+  MessageSendServiceImpl
+}
 import org.kurochan.scaptive_portal.server.{OpenFlowControllerServerImpl, OpenFlowControllerServiceConfigImpl}
 
 import scala.concurrent.duration.Duration
@@ -36,7 +41,9 @@ object Boot extends App with StrictLogging {
   val openFlowControllerServer = new OpenFlowControllerServerImpl(openFlowControllerServerConfig)
   openFlowControllerServer.start()
 
-  val captivePortalHttpServer = new CaptivePortalHttpServerImpl(new CaptivePortalRouterImpl(new CaptivePortalServiceImpl(new CaptivePortalServiceConfigImpl(dataPathManageService, queue))))
+  val captivePortalHttpServer = new CaptivePortalHttpServerImpl(
+    new CaptivePortalRouterImpl(new CaptivePortalServiceImpl(new CaptivePortalServiceConfigImpl(dataPathManageService, queue)))
+  )
   captivePortalHttpServer.start()
 
   val f = Promise[Int].future

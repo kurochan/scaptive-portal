@@ -23,9 +23,10 @@ class RedisRepositoryImpl(val clientPool: RedisClientPool) extends RedisReposito
       c.set(key, value)
     }
     ttl match {
-      case Some(t) => clientPool.withClient { c =>
-        c.expire(key, t)
-      }
+      case Some(t) =>
+        clientPool.withClient { c =>
+          c.expire(key, t)
+        }
       case None =>
     }
     value
@@ -52,6 +53,7 @@ class RedisRepositoryImpl(val clientPool: RedisClientPool) extends RedisReposito
 
 object RedisRepositoryImpl {
   private val globalConfig: Config = ConfigFactory.load()
+
   val repository = new RedisRepositoryImpl(
     new RedisClientPool(
       globalConfig.getString("captive-portal.redis.host"),
